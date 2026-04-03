@@ -5,9 +5,13 @@ services:
     build: .
     ports:
       - "8000:8000"
+    # Дублируем настройку логов для надежности в Compose
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
       - .env
     volumes:
       - ./storage/charts:/app/storage/charts
       - ./storage/reports:/app/storage/reports
+    # Исправлено: без запятой
     restart: always
