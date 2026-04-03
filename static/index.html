@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendRadar AI | Premium Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0b0f1a;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .neon-border {
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.05);
+        }
+
+        /* Стилизация Markdown */
+        .markdown-content h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00f2ff;
+            margin-bottom: 2rem;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #00f2ff;
+            padding-left: 1rem;
+        }
+
+        .markdown-content p {
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+            font-size: 1.125rem;
+        }
+
+        /* Анимации загрузки */
+        @keyframes pulse-fast {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .loading-dot {
+            animation: pulse-fast 1.5s infinite;
+            letter-spacing: 0.1em;
+        }
+    </style>
+</head>
+
+<body class="p-6 md:p-12">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-16 text-center">
+            <div
+                class="inline-block px-4 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-[10px] font-bold tracking-[0.5em] mb-6 uppercase">
+                Enterprise AI Analytics
+            </div>
+            <h1
+                class="text-6xl md:text-8xl font-black mb-6 bg-gradient-to-b from-white via-slate-300 to-slate-500 bg-clip-text text-transparent tracking-tighter">
+                TREND RADAR
+            </h1>
+        </header>
+
+        <div class="relative max-w-4xl mx-auto mb-20 group">
+            <div
+                class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000">
+            </div>
+            <div
+                class="relative flex flex-col md:flex-row gap-4 bg-slate-900/80 p-2 rounded-2xl border border-slate-700/50 backdrop-blur-xl">
+                <input type="text" id="topicInput"
+                    class="flex-1 bg-transparent border-none px-6 py-4 focus:outline-none text-xl text-white placeholder:text-slate-600"
+                    placeholder="Введите тему для анализа...">
+                <button onclick="runResearch()" id="runBtn"
+                    class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-12 py-4 rounded-xl font-black transition-all uppercase tracking-widest active:scale-95">
+                    Анализ
+                </button>
+            </div>
+        </div>
+
+        <div id="loader" class="hidden text-center py-20">
+            <div class="w-20 h-20 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin mx-auto">
+            </div>
+            <p class="mt-8 text-cyan-400 font-mono text-sm uppercase tracking-widest loading-dot">
+                Синхронизация агентов...
+            </p>
+        </div>
+
+        <div id="resultArea" class="hidden space-y-12 pb-32">
+            <div id="exportContent" class="space-y-12 p-4 bg-[#0b0f1a]">
+                <article class="bg-slate-900/40 p-8 md:p-20 rounded-[40px] border border-slate-800 backdrop-blur-md">
+                    <div id="textContent" class="markdown-content prose prose-invert max-w-none"></div>
+                </article>
+
+                <div class="bg-slate-900/80 p-1 md:p-2 rounded-[40px] neon-border">
+                    <div class="p-8 md:p-12">
+                        <h2 class="text-3xl font-black text-white uppercase mb-8">Визуализация тренда</h2>
+                        <div class="w-full bg-black/40 rounded-3xl p-4 md:p-10 flex justify-center">
+                            <img id="chartImg" src="" alt="Trend Chart"
+                                class="max-w-full h-auto rounded-xl shadow-2xl transition-opacity duration-1000 opacity-0"
+                                crossorigin="anonymous">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button onclick="saveAsPDF()"
+                    class="px-8 py-3 rounded-full border border-slate-700 text-slate-400 hover:bg-slate-800 text-xs font-bold uppercase tracking-widest transition-colors">
+                    Сохранить в PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        function saveAsPDF() {
+            const element = document.getElementById('exportContent');
+            const topic = document.getElementById('topicInput').value || 'report';
+            const opt = {
+                margin: 0.3,
+                filename: `TrendRadar_${topic.replace(/\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#0b0f1a' },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        async function runResearch() {
+            const topicInput = document.getElementById('topicInput');
+            const topic = topicInput.value;
+            const btn = document.getElementById('runBtn');
+            const loader = document.getElementById('loader');
+            const resultArea = document.getElementById('resultArea');
+            const textContent = document.getElementById('textContent');
+            const chartImg = document.getElementById('chartImg');
+
+            if (!topic) return;
+
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            chartImg.style.opacity = '0';
+
+            try {
+                const response = await fetch('/research', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic })
+                });
+
+                const data = await response.json();
+                if (data.content) textContent.innerHTML = marked.parse(data.content);
+
+                if (data.chart_file) {
+                    let chartUrl = data.chart_file.startsWith('/') ? data.chart_file : '/' + data.chart_file;
+                    chartImg.src = chartUrl + '?t=' + new Date().getTime();
+                    chartImg.onload = () => chartImg.style.opacity = '1';
+                }
+
+                resultArea.classList.remove('hidden');
+                setTimeout(() => window.scrollTo({ top: resultArea.offsetTop - 40, behavior: 'smooth' }), 100);
+            } catch (e) {
+                alert("Ошибка связи с сервером.");
+            } finally {
+                loader.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('topicInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runResearch();
+        });
+    </script>
+</body>
+
+</html>
