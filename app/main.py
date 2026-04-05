@@ -9,6 +9,11 @@ from app.agents import run_research
 app = FastAPI(title="TrendRadar AI")
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok", "service": "TrendRadar AI"}
+
+
 class ResearchRequest(BaseModel):
     topic: str
 
