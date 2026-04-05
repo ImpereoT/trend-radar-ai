@@ -26,7 +26,13 @@ jobs:
             --name test-api trend-radar-api
 
       - name: Wait for API
-        run: sleep 15
+        run: sleep 20
+
+      - name: Show container logs
+        run: docker logs test-api
+
+      - name: Check container is running
+        run: docker ps | grep test-api
 
       - name: Test health endpoint
         run: |
